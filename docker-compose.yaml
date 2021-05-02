@@ -1,0 +1,60 @@
+
+version: '3'
+services:
+    nodejs:
+        build:
+            context : nodejs
+        container_name: nodejs
+        entrypoint: dockerize -wait tcp://mysql-host:3306 -timeout 120s node index.js
+        tty: true
+        environment:
+            NODEJS_PORT : 3000
+            MYSQL_HOST : mysql-host
+            MYSQL_DATABASE : cursos
+            MYSQL_USER : MainUser
+            MYSQL_PASSWORD : MainPassword
+        depends_on:
+            - mysql    
+        hostname : nodejs-host
+        networks:
+            - node-mysql-net
+            - nginx-node-net
+    mysql:
+        image: mysql:5.7
+        restart: always
+        container_name: mysql        
+        volumes:
+            - ./mysql:/docker-entrypoint-initdb.d
+            - ./dbdata:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD : RootPassword
+            MYSQL_DATABASE : cursos
+            MYSQL_USER : MainUser
+            MYSQL_PASSWORD : MainPassword
+        hostname : mysql-host
+        networks:
+            - node-mysql-net   
+    nginx:
+        build:
+            context: nginx
+        container_name: nginx
+        restart: always
+        environment:
+            NODEJS_PORT : 3000
+            NGINX_HOST: nginx-host
+            NODEJS_HOST: nodejs-host
+        hostname : nginx-host
+        depends_on:
+            - nodejs
+        networks:
+            - nginx-node-net
+        ports:
+            - 8000:80
+volumes:
+    dbdata:
+        external: false
+networks:
+    node-mysql-net:
+        driver: bridge
+    nginx-node-net:
+        driver: bridge
