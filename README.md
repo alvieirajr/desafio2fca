@@ -5,5 +5,5 @@ Segundo Desafio do Programa Full Cycle de Aceleração: Edição Docker
 git clone https://github.com/alvieirajr/desafio2fca.git
 cd desafio2fca
 docker-compose up
-open http://localhost:8080
+open http://localhost:8000
 ```
